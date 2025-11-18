@@ -31,7 +31,7 @@ class Score_Observer:
                                                                                self.max_epoch))
 
 
-def train(train_loader, test_loader, checkpoint_path, retrival_path):
+def train(train_loader, test_loader, checkpoint_path=None, retrival_path=None):
     model = DifferNet()
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)

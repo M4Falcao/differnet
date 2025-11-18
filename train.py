@@ -103,15 +103,15 @@ def train(train_loader, test_loader, checkpoint_path="", retrival_path=""):
                          print_score=c.verbose or epoch == c.meta_epochs - 1)
 
         if(checkpoint_path and os.path.exists(checkpoint_path)):
-            checkpoint_path = os.path.join(checkpoint_path, f'checkpoint_epoch_{epoch + 1}.pth')
+            checkpoint_save = os.path.join(checkpoint_path, f'checkpoint_epoch_{epoch + 1}.pth')
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),
                 'optimizer_state_dict': optimizer.state_dict(),
                 'loss': loss,
-            }, checkpoint_path)
+            }, checkpoint_save)
 
-            print(f"Epoch {epoch}| Checkpoint salvo em: {checkpoint_path}")
+            print(f"Epoch {epoch}| Checkpoint salvo em: {checkpoint_save}")
 
     if c.grad_map_viz:
         export_gradient_maps(model, test_loader, optimizer, -1)

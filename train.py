@@ -31,14 +31,26 @@ class Score_Observer:
                                                                                self.max_epoch))
 
 
-def train(train_loader, test_loader):
+def train(train_loader, test_loader, checkpoint_path, retrival_path):
     model = DifferNet()
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)
 
     score_obs = Score_Observer('AUROC')
 
+    if(retrival_path and os.path.exists(retrival_path)):
+        checkpoint = torch.load(retrival_path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        start_epoch = checkpoint['epoch'] + 1
+        loss = checkpoint['loss']
+
+
+
+
     for epoch in range(c.meta_epochs):
+        if(start_epoch):
+            epoch = start_epoch
 
         # train some epochs
         model.train()
@@ -89,6 +101,17 @@ def train(train_loader, test_loader):
         anomaly_score = t2np(torch.mean(z_grouped ** 2, dim=(-2, -1)))
         score_obs.update(roc_auc_score(is_anomaly, anomaly_score), epoch,
                          print_score=c.verbose or epoch == c.meta_epochs - 1)
+
+        if(checkpoint_path and os.path.exists(checkpoint_path)):
+            checkpoint_path = os.path.join(SAVE_DIR, f'checkpoint_epoch_{epoch + 1}.pth')
+            torch.save({
+                'epoch': epoch,
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'loss': loss,
+            }, checkpoint_path)
+
+            print(f"Epoch {epoch}| Checkpoint salvo em: {checkpoint_path}")
 
     if c.grad_map_viz:
         export_gradient_maps(model, test_loader, optimizer, -1)

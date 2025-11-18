@@ -20,7 +20,7 @@ class Score_Observer:
 
     def update(self, score, epoch, print_score=False):
         self.last = score
-        if epoch == 0 or score > self.max_score:
+        if self.max_score is None or score > self.max_score:
             self.max_score = score
             self.max_epoch = epoch
         if print_score:

@@ -31,13 +31,13 @@ class Score_Observer:
                                                                                self.max_epoch))
 
 
-def train(train_loader, test_loader, checkpoint_path=None, retrival_path=None):
+def train(train_loader, test_loader, checkpoint_path="", retrival_path=""):
     model = DifferNet()
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)
 
     score_obs = Score_Observer('AUROC')
-    start_epoch = None
+    start_epoch = 0
 
     if(retrival_path and os.path.exists(retrival_path)):
         checkpoint = torch.load(retrival_path)
@@ -50,8 +50,7 @@ def train(train_loader, test_loader, checkpoint_path=None, retrival_path=None):
 
 
     for epoch in range(c.meta_epochs):
-        if(start_epoch):
-            epoch = start_epoch
+        epoch = start_epoch
 
         # train some epochs
         model.train()
@@ -104,7 +103,7 @@ def train(train_loader, test_loader, checkpoint_path=None, retrival_path=None):
                          print_score=c.verbose or epoch == c.meta_epochs - 1)
 
         if(checkpoint_path and os.path.exists(checkpoint_path)):
-            checkpoint_path = os.path.join(SAVE_DIR, f'checkpoint_epoch_{epoch + 1}.pth')
+            checkpoint_path = os.path.join(checkpoint_path, f'checkpoint_epoch_{epoch + 1}.pth')
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': model.state_dict(),

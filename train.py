@@ -37,6 +37,7 @@ def train(train_loader, test_loader, checkpoint_path=None, retrival_path=None):
     model.to(c.device)
 
     score_obs = Score_Observer('AUROC')
+    start_epoch = None
 
     if(retrival_path and os.path.exists(retrival_path)):
         checkpoint = torch.load(retrival_path)

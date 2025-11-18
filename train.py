@@ -50,7 +50,8 @@ def train(train_loader, test_loader, checkpoint_path="", retrival_path=""):
 
 
     for epoch in range(c.meta_epochs):
-        epoch = start_epoch
+        if(epoch is 0):
+            epoch = start_epoch
 
         # train some epochs
         model.train()

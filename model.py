@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn.functional as F
 from torch import nn
-from torchvision.models import alexnet
+from torchvision.models import alexnet, resnet18
 
 import config as c
 from freia_funcs import permute_layer, glow_coupling_layer, F_fully_connected, ReversibleGraphNet, OutputNode, \
@@ -31,6 +31,24 @@ class DifferNet(nn.Module):
     def __init__(self):
         super(DifferNet, self).__init__()
         self.feature_extractor = alexnet(pretrained=True)
+        self.nf = nf_head()
+
+    def forward(self, x):
+        y_cat = list()
+
+        for s in range(c.n_scales):
+            x_scaled = F.interpolate(x, size=c.img_size[0] // (2 ** s)) if s > 0 else x
+            feat_s = self.feature_extractor.features(x_scaled)
+            y_cat.append(torch.mean(feat_s, dim=(2, 3)))
+
+        y = torch.cat(y_cat, dim=1)
+        z = self.nf(y)
+        return z
+
+class DifferNeResnet18(nn.Module):
+    def __init__(self):
+        super(DifferNeResnet18, self).__init__()
+        self.feature_extractor = resnet18(pretrained=True)
         self.nf = nf_head()
 
     def forward(self, x):

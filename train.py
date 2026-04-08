@@ -5,7 +5,7 @@ from tqdm import tqdm
 
 import config as c
 from localization import export_gradient_maps
-from model import DifferNet, save_model, save_weights
+from model import DifferNet, save_model, save_weights, DifferNeResnet18
 from utils import *
 
 
@@ -32,7 +32,7 @@ class Score_Observer:
 
 
 def train(train_loader, test_loader):
-    model = DifferNet()
+    model = DifferNeResnet18()
     optimizer = torch.optim.Adam(model.nf.parameters(), lr=c.lr_init, betas=(0.8, 0.8), eps=1e-04, weight_decay=1e-5)
     model.to(c.device)
 

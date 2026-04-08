@@ -44,11 +44,12 @@ class DifferNet(nn.Module):
         y = torch.cat(y_cat, dim=1)
         z = self.nf(y)
         return z
-
+ 
 class DifferNeResnet18(nn.Module):
     def __init__(self):
         super(DifferNeResnet18, self).__init__()
-        self.feature_extractor = resnet18(pretrained=True)
+        resnet = resnet18(pretrained=True)
+        self.feature_extractor = nn.Sequential(*list(resnet.children())[:-2])
         self.nf = nf_head()
 
     def forward(self, x):
@@ -56,7 +57,7 @@ class DifferNeResnet18(nn.Module):
 
         for s in range(c.n_scales):
             x_scaled = F.interpolate(x, size=c.img_size[0] // (2 ** s)) if s > 0 else x
-            feat_s = self.feature_extractor.features(x_scaled)
+            feat_s = self.feature_extractor(x_scaled)
             y_cat.append(torch.mean(feat_s, dim=(2, 3)))
 
         y = torch.cat(y_cat, dim=1)
